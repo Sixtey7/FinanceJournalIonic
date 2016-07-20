@@ -1,0 +1,16 @@
+<ion-view view-title="TransactionList">
+  <ion-header-bar class="bar-stable">
+    <h2 class="title">Transactions for Account</h2>
+  </ion-header-bar>
+  Hello World
+  <ion-content>
+    <ion-list>
+      <ion-item ng-repeat = "entry in finances">
+        <span class="entrySource"> {{entry.source}}</span>
+        <span class="entryBalance"> {{entry.balance}} </span>
+        <br />
+        <span class="entryAmount"> {{entry.amount}}</span>
+      </ion-item>
+    </ion-list>
+  </ion-content>
+</ion-view>
