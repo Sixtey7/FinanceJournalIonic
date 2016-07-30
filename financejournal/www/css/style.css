@@ -1,4 +1,7 @@
 /* Empty. Add your own CSS if you like */
+.entryDate {
+  float : left;
+}
 .entrySource {
   size : 12px;
   float: left;
@@ -6,20 +9,23 @@
 
 .entryBalance {
   size : 12px;
-  float: right;
+  width: 100%;
+  text-align: right;
 }
 
 .entryAmount {
   size : 10px;
   float:left;
-
 }
 
 .doneRecord {
   background-color: #009689;
 }
 
+.doneRecord .item-content {
+  background-color: #009689;
+}
+
 .entryEstimatePlanned {
-  float:right;
   font-style: italic;
 }

@@ -3,7 +3,7 @@
  */
 angular.module('financeJournal.services', [])
 
-  .factory('Finances', function() {
+  .factory('Finances', function($http, $log, MassageService) {
     //this is a pretty temp hack, eventually we'll need to call out to some services
     var currentFinances = [{
       "id" : 0,
@@ -44,8 +44,22 @@ angular.module('financeJournal.services', [])
     }];
 
     return {
-      all : function() {
+      all : function(callback) {
         console.log('All is running1');
+/*
+        $http.get('http://localhost:3000/api/entries').then(function(resp){
+          //console.log('Success', resp.data); // JSON object
+          $log.debug('Got the data: ' + JSON.stringify(resp));
+          callback(null, resp.data);
+        }, function(err){
+          $log.error('Got an error trying to call the service: ' + err);
+          callback(err);
+        });
+*/
+        //TODO: Use this for deploying to my phone until after vacation
+        callback(null, currentFinances);
+        //TODO - End
+
         return currentFinances;
       },
       remove : function(entryToRemove) {
@@ -67,11 +81,17 @@ angular.module('financeJournal.services', [])
         //assign an id
         //TODO: This will eventually be removed as we'll allow the backend to assign the id
         var maxId = currentFinances[currentFinances.length - 1].id;
-        console.log('Determined the max id to be: ' + maxId);
+        //console.log('Determined the max id to be: ' + maxId);
         //TODO: End TODO
-        entryToAdd.id = maxId + 1;
+        //entryToAdd.id = maxId + 1;
         //deep copy into array
-        currentFinances.push(JSON.parse(JSON.stringify(entryToAdd)));
+        //currentFinances.push(JSON.parse(JSON.stringify(entryToAdd)));
+
+
+        //call the backend to add it
+
+        //put it into our current array
+        MassageService.placeElementIntoPosition(currentFinances, entryToAdd, false);
       },
       post : function(updatedEntry) {
         console.log('Posting: ' + JSON.stringify(updatedEntry));
@@ -87,7 +107,7 @@ angular.module('financeJournal.services', [])
           }
         }
 
-        console.log('Determined the cuurent position to be: ' + currentIndex);
+        console.log('Determined the current position to be: ' + currentIndex);
 
         if (currentIndex > 0) {
           currentFinances[currentIndex] = JSON.parse(JSON.stringify(updatedEntry));
@@ -100,7 +120,7 @@ angular.module('financeJournal.services', [])
     };
   })
 
-  .service('MassageService', function() {
+  .service('MassageService', function($log) {
     /**
      * Function used to massage the entry array
      *
@@ -147,5 +167,64 @@ angular.module('financeJournal.services', [])
 
       return entries;
 
+    };
+
+    this.placeElementIntoPosition = function(entryArray, entryToPlace, needToRemove) {
+      if (entryArray.length > 0) {
+        //TODO: This is the same todo as the web frontend - we could probably combine these two for loops
+        var oldLoc = -1;
+        if (needToRemove) {
+          //try to find the original position
+          for (var index = 0; index < entryArray.length; index++) {
+            if (entryArray[index].id === entryToPlace.id) {
+              oldLoc = index;
+              break;
+            }
+          }
+        }
+
+        //find the location to insert the entry
+        var insertLoc = 0;
+        entryToPlace.date=  new Date(entryToPlace.date);
+        $log.debug('Comparing: ' + entryToPlace.date + ' to ' + entryArray[insertLoc].date);
+        while (entryToPlace.date >= entryArray[insertLoc].date) {
+          insertLoc++;
+
+          if (insertLoc === entryArray.length) {
+            $log.debug('Breaking at: ' + insertLoc);
+            break;
+          }
+          else {
+            $log.debug('Comparing: ' + entryToPlace.date + ' to ' + entryArray[insertLoc].date);
+          }
+        }
+
+        $log.debug('Old Loc: ' + oldLoc);
+        $log.debug('New Loc: ' + insertLoc);
+
+        if (oldLoc >= 0) {
+          if (insertLoc === oldLoc) {
+            $log.debug('Old location matched the new one --- overwriting');
+//            entryArray[insertLoc] = JSON.parse(JSON.stringify(entryToPlace));
+              entryArray[insertLoc] = entryToPlace;
+          }
+          else {
+            //first, we need to remove it from it's old location
+            if (oldLoc < insertLoc) {
+              //add the new one in, then remove the old one
+              entryArray.splice(insertLoc, 0, entryToPlace);
+              entryArray.splice(oldLoc, 1);
+            }
+            else {
+              entryArray.splice(oldLoc,1);
+              entryArray.splice(insertLoc, 0, entryToPlace);
+            }
+          }
+        }
+        else {
+          //don't need to worry about removing anything
+          entryArray.splice(insertLoc, 0, entryToPlace);
+        }
+      }
     }
   });

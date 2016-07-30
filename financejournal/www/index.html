@@ -25,39 +25,64 @@
     <script src="js/controllers/controllers.js"></script>
 
     <script src="js/controllers/services.js"></script>
+
+    <script src="js/filters/filters.js"></script>
   </head>
   <body ng-app="financeJournal", ng-controller="viewFinancesController">
   <!--ion-nav-view></ion-nav-view-->
+    <ion-header-bar>
+      <h1 class="title">Transactions</h1>
+      <button class="button button-icon ion-plus" ng-click="newTransaction()">
+      </button>
+    </ion-header-bar>
     <ion-content>
       <ion-list>
-        <ion-item ng-repeat = "entry in finances" ng-class="entry.done  ? 'doneRecord' : ''">
-
-          <div class = "row">
-            <div class="col-50">
-              <span class="entrySource"> {{entry.source }}</span>
-            </div>
-            <div class="col-50">
-              <span class="entryBalance"> {{entry.balance}} </span>
-            </div>
-          </div>
+        <ion-item ng-repeat = "entry in finances track by entry.id" ng-class="entry.done  ? 'doneRecord' : ''">
 
           <div class="row">
-            <div class="col-50">
-              <span class="entryAmount"> {{entry.amount}} </span>
+            <div class="col col-30">
+              <div class = "row">
+                <span class="entryDate"> {{entry.date | dateFilter}} </span>
+              </div>
             </div>
-            <div class="col-50">
-              <span ng-show="entry.estimate" class="entryEstimatePlanned">
-                Estimate!
-              </span>
-              <span ng-show="entry.planned" class="entryEstimatePlanned">
-                Planned!
-              </span>
+
+            <div class = "col col-50">
+              <div class = "row">
+                <span class = "entrySource"> {{entry.source}} </span>
+              </div>
+              <div class = "row">
+                <span class = "entryAmount"> {{entry.amount}} </span>
+              </div>
+            </div>
+
+            <div class = "col col-20">
+              <div class = "row">
+                <span class="entryBalance"> {{entry.balance}}</span>
+              </div>
+              <div class = "row" ng-show="entry.estimate">
+                <span class="entryEstimatePlanned">
+                  Estimate!
+                </span>
+              </div>
+              <div class = "row" ng-show="entry.planned">
+                <span class="entryEstimatePlanned">
+                  Planned!
+                </span>
+              </div>
             </div>
           </div>
 
           <div class="row">
             <span class="entryNotes"> {{entry.notes}} </span>
           </div>
+
+
+          <ion-option-button class="button-energized" ng-click="editEntry(entry)">
+            Edit
+          </ion-option-button>
+          <ion-option-button class="button-assertive" ng-click="deleteEntry(entry)">
+            Delete
+          </ion-option-button>
 
         </ion-item>
       </ion-list>

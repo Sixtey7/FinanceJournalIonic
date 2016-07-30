@@ -1,0 +1,46 @@
+<ion-modal-view>
+  <ion-header-bar class="bar-secondary">
+    <h1 class="title">New Transaction</h1>
+    <button class="button button-clear button-positive" ng-click="cancelAddNewTransaction()">Cancel</button>
+  </ion-header-bar>
+
+  <ion-content>
+    <form ng-submit="addNewTransaction()">
+      <div class="list">
+        <label class="item item-input">
+          <input type="text" placeholder="Source" ng-model="formEntry.source" required>
+        </label>
+        <label class="item item-input">
+          <input type="number" ng-model="formEntry.amount" placeholder="0.00" min="-9999" max="9999" required>
+        </label>
+        <label class="item item-input">
+          <input type="date" ng-model="formEntry.date" id="datePicker" required>
+        </label>
+        <div class="item item-toggle">
+          Estimate
+          <label class="toggle">
+            <input type="checkbox" ng-model="formEntry.estimate" ng-checked="entry.estimate">
+            <div class="track">
+              <div class="handle"></div>
+            </div>
+          </label>
+        </div>
+        <div class="item item-toggle">
+          Planned
+          <label class="toggle">
+            <input type="checkbox" ng-model="formEntry.planned" ng-checked="entry.planned">
+            <div class="track">
+              <div class="handle"></div>
+            </div>
+          </label>
+        </div>
+        <label class="item item-input">
+          <input type="text" placeholder="Notes" ng-model="formEntry.notes">
+        </label>
+      </div>
+      <div class="padding">
+        <button type="submit" class="button button-block button-positive">Create Task</button>
+      </div>
+    </form>
+  </ion-content>
+</ion-modal-view>
