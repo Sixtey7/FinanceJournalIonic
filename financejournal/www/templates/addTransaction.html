@@ -1,17 +1,17 @@
 <ion-modal-view>
   <ion-header-bar class="bar-secondary">
-    <h1 class="title">New Transaction</h1>
-    <button class="button button-clear button-positive" ng-click="cancelAddNewTransaction()">Cancel</button>
+    <h1 class="title">{{ formEditMode ? 'Edit Transaction' : 'New Transaction'}}</h1>
+    <button class="button button-clear button-positive" ng-click="cancelTransactionForm()">Cancel</button>
   </ion-header-bar>
 
   <ion-content>
-    <form ng-submit="addNewTransaction()">
+    <form ng-submit="submitEntryForm()">
       <div class="list">
         <label class="item item-input">
           <input type="text" placeholder="Source" ng-model="formEntry.source" required>
         </label>
         <label class="item item-input">
-          <input type="number" ng-model="formEntry.amount" placeholder="0.00" min="-9999" max="9999" required>
+          <input type="number" ng-model="formEntry.amount" placeholder="0.00" min="-99999" max="99999" required>
         </label>
         <label class="item item-input">
           <input type="date" ng-model="formEntry.date" id="datePicker" required>
@@ -19,7 +19,7 @@
         <div class="item item-toggle">
           Estimate
           <label class="toggle">
-            <input type="checkbox" ng-model="formEntry.estimate" ng-checked="entry.estimate">
+            <input type="checkbox" ng-model="formEntry.estimate" ng-checked="formEntry.estimate">
             <div class="track">
               <div class="handle"></div>
             </div>
@@ -28,7 +28,7 @@
         <div class="item item-toggle">
           Planned
           <label class="toggle">
-            <input type="checkbox" ng-model="formEntry.planned" ng-checked="entry.planned">
+            <input type="checkbox" ng-model="formEntry.planned" ng-checked="formEntry.planned">
             <div class="track">
               <div class="handle"></div>
             </div>
@@ -39,7 +39,7 @@
         </label>
       </div>
       <div class="padding">
-        <button type="submit" class="button button-block button-positive">Create Task</button>
+        <button type="submit" class="button button-block button-positive"> {{ formEditMode ? 'Edit Task' : 'Create Task' }}</button>
       </div>
     </form>
   </ion-content>
