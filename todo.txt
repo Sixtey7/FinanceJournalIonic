@@ -1,0 +1,7 @@
+Tasks for the app version:
+
+-create needs to call the service
+-update needs to trigger a call to the service
+-need the ability to delete an entry
+-need the ability to filter 
+

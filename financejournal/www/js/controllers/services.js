@@ -4,50 +4,13 @@
 angular.module('financeJournal.services', [])
 
   .factory('Finances', function($http, $log, MassageService) {
-    //this is a pretty temp hack, eventually we'll need to call out to some services
-    var currentFinances = [{
-      "id" : 0,
-      "source" : "Starting Balance",
-      "amount" : 10000,
-      "estimate" : false,
-      "notes" : "Gotta Start Somewhere",
-      "date" : "2016-04-01T00:00:00.000Z"
-    },{
-      "id" : 1,
-      "source" : "GEEFCU Xfer",
-      "amount" : -2000,
-      "estimate" : false,
-      "notes" : "awesome!",
-      "date" : "2016-04-02T00:00:00.000Z"
-    },{
-      "id" : 2,
-      "source" : "Rent",
-      "amount" : -1500,
-      "estimate" : false,
-      "notes" : "awesome!",
-      "date" : "2016-04-05T00:00:00.000Z"
-    }, {
-      "id" : 3,
-      "source": "Pay Chase",
-      "amount": -1775,
-      "estimate": true,
-      "notes": "total guess",
-      "date": "2016-04-15T00:00:00.000Z"
-    },{
-        "id" : 4,
-        "source": "Paycheck",
-        "amount": 1500,
-        "estimate": true,
-        "planned" : true,
-        "notes": "money money money",
-        "date": "2016-04-16T00:00:00.000Z"
-    }];
 
     return {
       all : function(callback) {
-        console.log('All is running1');
-/*
-        $http.get('http://localhost:3000/api/entries').then(function(resp){
+        console.log('All is running!');
+
+        //TODO: there has to be a better place to put this url, config file, or something
+        $http.get('http://172.19.131.133:3000/api/entries').then(function(resp){
           //console.log('Success', resp.data); // JSON object
           $log.debug('Got the data: ' + JSON.stringify(resp));
           callback(null, resp.data);
@@ -55,12 +18,6 @@ angular.module('financeJournal.services', [])
           $log.error('Got an error trying to call the service: ' + err);
           callback(err);
         });
-*/
-        //TODO: Use this for deploying to my phone until after vacation
-        callback(null, currentFinances);
-        //TODO - End
-
-        return currentFinances;
       },
       remove : function(entryToRemove) {
         currentFinances.splice(currentFinances.indexOf(entryToRemove), 1);
@@ -76,22 +33,32 @@ angular.module('financeJournal.services', [])
 
         return null;
       },
+      range : function(callback, dateRangeObj) {
+        $log.debug('Querying for date range: ' + JSON.stringify(dateRangeObj));
+
+        //TODO: Same as above, should realy store the address for the backend as a property
+        $http.post('http://172.19.131.133:3000/api/entries/dateRange', dateRangeObj).then(
+          function(data) {
+            $log.debug('Got the data: ' + JSON.stringify(data));
+            callback(null, data);
+          },
+          function(err) {
+            $log.error('Got an error trying to query for a range: ' + err);
+            callback(err, null);
+          }
+        );
+      },
       put : function(entryToAdd) {
         console.log('Putting: ' + JSON.stringify(entryToAdd));
-        //assign an id
-        //TODO: This will eventually be removed as we'll allow the backend to assign the id
-        var maxId = currentFinances[currentFinances.length - 1].id;
-        //console.log('Determined the max id to be: ' + maxId);
-        //TODO: End TODO
-        //entryToAdd.id = maxId + 1;
-        //deep copy into array
-        //currentFinances.push(JSON.parse(JSON.stringify(entryToAdd)));
+        
+        //TODO: make a call to the backend here 
+        $http.post('http://localhost:3000/api/entries', entryToAdd).then(function(resp) {
+          $log.debug('Got the data: ' + JSON.stringify(resp));
 
-
-        //call the backend to add it
-
-        //put it into our current array
-        MassageService.placeElementIntoPosition(currentFinances, entryToAdd, false);
+          //put it into our current array
+          MassageService.placeElementIntoPosition(currentFinances, entryToAdd, false);
+        });
+        
       },
       post : function(updatedEntry) {
         console.log('Posting: ' + JSON.stringify(updatedEntry));
@@ -109,6 +76,7 @@ angular.module('financeJournal.services', [])
 
         console.log('Determined the current position to be: ' + currentIndex);
 
+/*
         if (currentIndex > 0) {
           currentFinances[currentIndex] = JSON.parse(JSON.stringify(updatedEntry));
         }
@@ -116,6 +84,7 @@ angular.module('financeJournal.services', [])
           console.log('WARNING: Did not find a current index for posted entry!');
           this.put(updatedEntry);
         }
+        */
       }
     };
   })
@@ -126,7 +95,7 @@ angular.module('financeJournal.services', [])
      *
      * @param entries - the entries to be massaged - assumed to be sorted
        */
-    this.massageEntryArray = function(entries) {
+    this.massageEntryArray = function(entries, startingBalance) {
       //create a javascript date object for today
       var today = new Date();
       today.setHours(0, 0, 0, 0);
@@ -134,6 +103,14 @@ angular.module('financeJournal.services', [])
       var pastToday = false;
       var balance = 0;
 
+      if (startingBalance) {
+        balance = startingBalance;
+      }
+      else if (entries.length > 0 && entries[0].balance) {
+        //TODO: subtracting the amount is a stupid hack - but it'll work for now!
+        balance = entries[0].balance - entries[0].amount;
+      }
+      
       for (var i = 0; i < entries.length; i++) {
         balance = balance + entries[i].amount;
 

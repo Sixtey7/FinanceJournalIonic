@@ -8,11 +8,18 @@ angular.module('financeJournal.controllers', [])
     /******************************
      * Initial Standup of the Modal
      */
-     $ionicModal.fromTemplateUrl('templates/addTransaction.html', {
+     $ionicModal.fromTemplateUrl('templates/transactionForm.html', {
       scope : $scope,
       animation : 'slide-in-up'
     }).then(function(modal) {
-      $scope.modal = modal;
+      $scope.transactionModal = modal;
+    });
+
+    $ionicModal.fromTemplateUrl('templates/filterDateEntry.html', {
+      scope : $scope,
+      animation : 'slide-in-up'
+    }).then(function (modal) {
+      $scope.filterModal = modal;
     });
 
     /******************************
@@ -20,14 +27,23 @@ angular.module('financeJournal.controllers', [])
      * @param err err if an error was returned from the service
      * @param entries the entries retrieved from the backend
        */
-     var handleGetAllResponse = function(err, entries) {
+     var handleDataResponse = function(err, entries, startingBalance) {
       if (err) {
         console.log('Got an error: ' + err)
       }
       else {
-        $scope.finances = MassageService.massageEntryArray(entries);
+        $scope.finances = MassageService.massageEntryArray(entries, startingBalance);
       }
     };
+
+    var handleFilterResponse = function(err, response) {
+      if (err) {
+        $log.error('Got an error: ' + err);
+      }
+      else {
+        handleDataResponse(null, response.entryArray, response.startingBalance);
+      }
+    }
 
     /******************************
      * Generic Form Crap
@@ -39,7 +55,7 @@ angular.module('financeJournal.controllers', [])
       }
       else {
         $log.debug('Create Form Submitted');
-        newTransaction();
+        $scope.addNewTransaction();
       }
     };
 
@@ -47,7 +63,7 @@ angular.module('financeJournal.controllers', [])
     $scope.cancelTransactionForm = function() {
       $log.debug('Cancel the transaction form');
       $scope.formEntry = {};
-      $scope.modal.hide();
+      $scope.transactionModal.hide();
     };
 
     /******************************
@@ -58,7 +74,7 @@ angular.module('financeJournal.controllers', [])
       $scope.formEntry = {};
       $scope.formEditMode = false;
 
-      $scope.modal.show();
+      $scope.transactionModal.show();
       document.getElementById('datePicker').valueAsDate = new Date();
 
      };
@@ -76,7 +92,7 @@ angular.module('financeJournal.controllers', [])
         notes : this.formEntry.notes
       };
 
-      $scope.modal.hide();
+      $scope.transactionModal.hide();
 
       $log.debug('Created the entry: ' + JSON.stringify(entryToAdd));
       Finances.put(entryToAdd);
@@ -98,24 +114,64 @@ angular.module('financeJournal.controllers', [])
         };
 
         $scope.formEditMode = true;
-        $scope.modal.show();
-      };
+        $scope.transactionModal.show();
+    };
 
-      $scope.commitEditTransaction = function() {
-        $log.debug('Posted to edit: ' + JSON.stringify(this.formEntry));
-      };
+    $scope.commitEditTransaction = function() {
+      $log.debug('Posted to edit: ' + JSON.stringify(this.formEntry));
+    };
 
-      $scope.deleteEntry = function(entryToDelete) {
-        $log.debug('The user has selected to delete the entry: ' + JSON.stringify((entryToDelete)));
-      };
+    $scope.deleteEntry = function(entryToDelete) {
+      $log.debug('The user has selected to delete the entry: ' + JSON.stringify((entryToDelete)));
+
+      
+    };
+
+    /******************************
+     * Filter Form Crap
+     */
+    $scope.showFilterDialog = function() {
+      $log.debug('The user has selected to filter the entries');
+
+      $scope.dateFilterEntry = {};
+
+      //might want to change the default range to be a few days, month, something like that 
+      $scope.dateFilterEntry.startDate = new Date();
+      $scope.dateFilterEntry.endDate = new Date();
+
+      $scope.filterModal.show();
+
+    }
+
+    $scope.cancelFilterForm = function() {
+      $log.debug('The user has selected to cancel the filter form');
+
+      $scope.dateFilterEntry = {};
+      $scope.filterModal.hide();
+    }
+
+    $scope.submitFilterForm = function() {
+      $log.debug('The user selected to filter: ' + JSON.stringify($scope.dateFilterEntry));
+
+      //deep copy the object so that we don't have to worry about losing
+      var dateFilterObj = JSON.parse(JSON.stringify($scope.dateFilterEntry));
+
+      $scope.filterModal.hide();
+
+      Finances.range(handleFilterResponse, dateFilterObj);
+    }
 
 
+    $scope.onHold = function() {
+      $log.debug('DETECTED ON HOLD');
+    }
 
       /******************************
        * Modal Maintenance
        */
     $scope.$on('$destroy', function() {
-        $scope.modal.remove();
+        $scope.transactionModal.remove();
+        $scope.filterModal.remove();
     });
     // Execute action on hide modal
     $scope.$on('modal.hidden', function() {
@@ -131,6 +187,6 @@ angular.module('financeJournal.controllers', [])
        * Initial Setup
        */
     console.log('Standing up the View Finances Controller!');
-    Finances.all(handleGetAllResponse);
+    Finances.all(handleDataResponse);
     console.log('Post finances');
   });

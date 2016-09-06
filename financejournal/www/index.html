@@ -33,11 +33,12 @@
     <ion-header-bar>
       <h1 class="title">Transactions</h1>
       <button class="button button-icon ion-plus" ng-click="newTransaction()">
+      <button class="button button-icon ion-calendar" ng-click = "showFilterDialog()">
       </button>
     </ion-header-bar>
     <ion-content>
       <ion-list>
-        <ion-item ng-repeat = "entry in finances track by entry.id" ng-class="entry.done  ? 'doneRecord' : ''">
+        <ion-item ng-repeat = "entry in finances track by entry.id" ng-class="entry.done  ? 'doneRecord' : ''" ng-click = "editEntry(entry)">
 
           <div class="row">
             <div class="col col-30">
@@ -51,13 +52,13 @@
                 <span class = "entrySource"> {{entry.source}} </span>
               </div>
               <div class = "row">
-                <span class = "entryAmount"> {{entry.amount}} </span>
+                <span class = "entryAmount"> {{entry.amount | number : 2}} </span>
               </div>
             </div>
 
             <div class = "col col-20">
               <div class = "row">
-                <span class="entryBalance"> {{entry.balance}}</span>
+                <span class="entryBalance"> {{entry.balance | number : 2}}</span>
               </div>
               <div class = "row" ng-show="entry.estimate">
                 <span class="entryEstimatePlanned">

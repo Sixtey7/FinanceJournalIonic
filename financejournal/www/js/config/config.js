@@ -9,7 +9,7 @@ angular.module('financeJournal', ['ionic', 'financeJournal.controllers','finance
       url: '/viewFinances',
       views: {
         'mainView' : {
-          templateUrl: 'templates/addTransaction.html',
+          templateUrl: 'templates/transactionForm.html',
           controller: 'viewFinancesController'
         }
       }
