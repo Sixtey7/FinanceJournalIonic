@@ -5,16 +5,16 @@
   </ion-header-bar>
 
   <ion-content>
-    <form ng-submit="submitEntryForm()">
+    <form name = "transactionForm" ng-submit="submitEntryForm()">
       <div class="list">
         <label class="item item-input">
-          <input type="text" placeholder="Source" ng-model="formEntry.source" required>
+          <input name = "source" type="text" placeholder="Source" ng-model="formEntry.source" required>
         </label>
         <label class="item item-input">
-          <input type="number" ng-model="formEntry.amount" placeholder="0.00" min="-99999" max="99999" required>
+          <input name = "amount" type="number" ng-model="formEntry.amount" step = "0.01" placeholder="0.00" min="-99999" max="99999" required>
         </label>
         <label class="item item-input">
-          <input type="date" ng-model="formEntry.date" id="datePicker" required>
+          <input name = "transactionDate" type="date" ng-model="formEntry.date" id="datePicker" required>
         </label>
         <div class="item item-toggle">
           Estimate
@@ -40,6 +40,13 @@
       </div>
       <div class="padding">
         <button type="submit" class="button button-block button-positive"> {{ formEditMode ? 'Edit Task' : 'Create Task' }}</button>
+      </div>
+      <div class = "padding errorText" ng-hide="transactionForm.$valid">
+        <p ng-show = "transactionForm.source.$error.required">Source is Required</p>
+        <p ng-show = "transactionForm.amount.$error.required">Amount is Required</p>
+        <p ng-show = "transactionForm.amount.$error.max">Amount Must Be Less Than 99999</p>
+        <p ng-show = "transactionForm.amount.$error.min">Amount Must Be Greater Than -999999</p>
+        <p ng-show = "transactionForm.transactionDate.$error.required">Date is Required</p>
       </div>
     </form>
   </ion-content>

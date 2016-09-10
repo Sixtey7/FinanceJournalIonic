@@ -41,7 +41,20 @@ angular.module('financeJournal.controllers', [])
         $log.error('Got an error: ' + err);
       }
       else {
-        handleDataResponse(null, response.entryArray, response.startingBalance);
+        var responseObj = response.data;
+        handleDataResponse(null, responseObj.entryArray, responseObj.startingBalance);
+      }
+    }
+
+    /*****************************
+     * Callback method for Editing an Entry
+     */
+    var handleEditResponse = function(err, entryToPlace, entryEdited) {
+      if (err) {
+        console.log('Got an error ' + err);
+      }
+      else {
+        $scope.finances = MassageService.placeElementIntoPosition($scope.finances, updatedEntry, entryEdited);
       }
     }
 
@@ -62,8 +75,8 @@ angular.module('financeJournal.controllers', [])
 
     $scope.cancelTransactionForm = function() {
       $log.debug('Cancel the transaction form');
-      $scope.formEntry = {};
       $scope.transactionModal.hide();
+      $scope.formEntry = {};
     };
 
     /******************************
@@ -105,6 +118,8 @@ angular.module('financeJournal.controllers', [])
         $log.debug('The user has selected to edit the entry: ' + JSON.stringify(entryToEdit));
 
         $scope.formEntry = {
+          _id : entryToEdit._id,
+          id : entryToEdit.id,
           source : entryToEdit.source,
           amount : entryToEdit.amount,
           date : new Date(entryToEdit.date),
@@ -119,6 +134,23 @@ angular.module('financeJournal.controllers', [])
 
     $scope.commitEditTransaction = function() {
       $log.debug('Posted to edit: ' + JSON.stringify(this.formEntry));
+
+      var editedEntry = {
+        _id : this.formEntry._id,
+        id : this.formEntry.id,
+        source : this.formEntry.source,
+        amount : this.formEntry.amount,
+        date : this.formEntry.date,
+        estimate : this.formEntry.estimate,
+        planned : this.formEntry.planned,
+        notes : this.formEntry.notes
+      };
+
+      $scope.transactionModal.hide();
+
+      $log.debug('Created the edit entry: ' + JSON.stringify(editedEntry));
+      Finances.post(editedEntry, handleEditResponse);
+
     };
 
     $scope.deleteEntry = function(entryToDelete) {

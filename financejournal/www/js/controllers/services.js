@@ -10,7 +10,7 @@ angular.module('financeJournal.services', [])
         console.log('All is running!');
 
         //TODO: there has to be a better place to put this url, config file, or something
-        $http.get('http://172.19.131.133:3000/api/entries').then(function(resp){
+        $http.get('http://172.20.3.80:3000/api/entries').then(function(resp){
           //console.log('Success', resp.data); // JSON object
           $log.debug('Got the data: ' + JSON.stringify(resp));
           callback(null, resp.data);
@@ -37,7 +37,7 @@ angular.module('financeJournal.services', [])
         $log.debug('Querying for date range: ' + JSON.stringify(dateRangeObj));
 
         //TODO: Same as above, should realy store the address for the backend as a property
-        $http.post('http://172.19.131.133:3000/api/entries/dateRange', dateRangeObj).then(
+        $http.post('http://172.20.3.80:3000/api/entries/dateRange', dateRangeObj).then(
           function(data) {
             $log.debug('Got the data: ' + JSON.stringify(data));
             callback(null, data);
@@ -51,40 +51,34 @@ angular.module('financeJournal.services', [])
       put : function(entryToAdd) {
         console.log('Putting: ' + JSON.stringify(entryToAdd));
         
-        //TODO: make a call to the backend here 
+        //call the backend to add the entry 
         $http.post('http://localhost:3000/api/entries', entryToAdd).then(function(resp) {
           $log.debug('Got the data: ' + JSON.stringify(resp));
 
           //put it into our current array
-          MassageService.placeElementIntoPosition(currentFinances, entryToAdd, false);
+          callback(null, resp.data, false);
         });
         
       },
-      post : function(updatedEntry) {
+      post : function(updatedEntry, callback) {
         console.log('Posting: ' + JSON.stringify(updatedEntry));
 
-        //find the current entry
-        var currentIndex = -1;
+        var urlToPost = 'http://localhost:3000/api/entries/' + updatedEntry._id;
+        console.log('Posting to: ' + urlToPost);
+        $http.post(urlToPost, updatedEntry).then(function(resp) {
+          $log.debug('Response from the server: ' + JSON.stringify(resp));
 
-        //for some reason, everything in my list becomes a string
-        for (var i = 0; i < currentFinances.length; i++) {
-          if (currentIndex[i].id === updatedEntry.id) {
-            currentIndex = i;
-            break;
+          if (resp.status === 200) {
+            $log.debug('Got the positive response');
+
+            //put the updated entry into our array
+            callback(null, updatedEntry, true);
           }
-        }
-
-        console.log('Determined the current position to be: ' + currentIndex);
-
-/*
-        if (currentIndex > 0) {
-          currentFinances[currentIndex] = JSON.parse(JSON.stringify(updatedEntry));
-        }
-        else {
-          console.log('WARNING: Did not find a current index for posted entry!');
-          this.put(updatedEntry);
-        }
-        */
+          else {
+            callback('Error code: ' + resp.status, null, null);
+          }
+          
+        })
       }
     };
   })

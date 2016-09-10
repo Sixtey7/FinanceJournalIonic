@@ -29,3 +29,9 @@
 .entryEstimatePlanned {
   font-style: italic;
 }
+
+.errorText {
+  color : red;
+  font-weight: 600;
+  font-style: italic;
+}
