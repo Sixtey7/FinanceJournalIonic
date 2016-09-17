@@ -219,6 +219,17 @@ angular.module('financeJournal.controllers', [])
        * Initial Setup
        */
     console.log('Standing up the View Finances Controller!');
-    Finances.all(handleDataResponse);
+
+    var startingFilterEntry = {};
+
+    startingFilterEntry.startDate = new Date();
+    startingFilterEntry.endDate = new Date();
+
+    //default the filter to a month (week in past, 3 in future)
+    startingFilterEntry.startDate.setDate(startingFilterEntry.startDate.getDate() - 7);
+    startingFilterEntry.endDate.setDate(startingFilterEntry.endDate.getDate() + 21);
+    
+    Finances.range(handleFilterResponse, startingFilterEntry);
+    //Finances.all(handleDataResponse);
     console.log('Post finances');
   });
