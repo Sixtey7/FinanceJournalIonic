@@ -10,7 +10,7 @@ angular.module('financeJournal.services', [])
         console.log('All is running!');
 
         //TODO: there has to be a better place to put this url, config file, or something
-        $http.get('http://192.168.1.153:3000/api/entries').then(function(resp){
+        $http.get('http://192.168.1.168:3000/api/entries').then(function(resp){
           //console.log('Success', resp.data); // JSON object
           $log.debug('Got the data: ' + JSON.stringify(resp));
           callback(null, resp.data);
@@ -37,7 +37,7 @@ angular.module('financeJournal.services', [])
         $log.debug('Querying for date range: ' + JSON.stringify(dateRangeObj));
 
         //TODO: Same as above, should realy store the address for the backend as a property
-        $http.post('http://192.168.1.153:3000/api/entries/dateRange', dateRangeObj).then(
+        $http.post('http://192.168.1.168:3000/api/entries/dateRange', dateRangeObj).then(
           function(data) {
             $log.debug('Got the data: ' + JSON.stringify(data));
             callback(null, data);
